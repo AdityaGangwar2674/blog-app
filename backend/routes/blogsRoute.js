@@ -1,30 +1,15 @@
-const mongoose = require("mongoose");
+const express = require("express");
+const router = express.Router();
+const {
+  saveDraft,
+  publishBlog,
+  getAllBlogs,
+  getBlogById,
+} = require("../controllers/blogController");
 
-const blogSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true,
-  },
-  content: {
-    type: String,
-    required: true,
-  },
-  tags: {
-    type: [String],
-  },
-  created_at: {
-    type: Date,
-    default: Date.now,
-  },
-  updated_at: {
-    type: Date,
-    default: Date.now,
-  },
-  status: {
-    type: String,
-    enum: ["draft", "published"],
-    default: "draft",
-  },
-});
+router.post("/save-draft", saveDraft);
+router.post("/publish", publishBlog);
+router.get("/", getAllBlogs);
+router.get("/:id", getBlogById);
 
-module.exports = mongoose.model("Blog", blogSchema);
+module.exports = router;
