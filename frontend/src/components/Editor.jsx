@@ -1,61 +1,157 @@
-import { useState } from "react";
-import { Editor as DraftEditor, EditorState, convertToRaw } from "draft-js";
+import { useState, useEffect, useRef } from "react";
+import { Editor, EditorState, convertToRaw } from "draft-js";
 import "draft-js/dist/Draft.css";
 
-export default function Editor() {
-  const [title, setTitle] = useState("");
+export default function BlogEditor() {
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty()
   );
+  const [title, setTitle] = useState("");
+  const [tags, setTags] = useState("");
+  const [toast, setToast] = useState("");
+  const [blogId, setBlogId] = useState(null);
 
-  const handleSave = (status) => {
-    const contentState = editorState.getCurrentContent();
-    const rawContent = convertToRaw(contentState);
+  const typingTimeoutRef = useRef(null);
+  const isUnmounted = useRef(false);
 
-    const blog = {
-      title,
-      content: rawContent,
-      status,
+  const parseTags = (tagString) =>
+    tagString
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
+
+  const saveDraft = async () => {
+    const content = convertToRaw(editorState.getCurrentContent());
+    const isContentEmpty =
+      editorState.getCurrentContent().getPlainText().trim().length === 0;
+    if (!title.trim() && isContentEmpty) return;
+
+    try {
+      const res = await fetch("/api/blogs/save-draft", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: blogId,
+          title,
+          content: JSON.stringify(content),
+          tags: parseTags(tags),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!blogId && data._id) setBlogId(data._id);
+
+      if (!isUnmounted.current) {
+        setToast("Draft auto-saved");
+        setTimeout(() => {
+          setToast("");
+        }, 3000);
+      }
+    } catch (err) {
+      console.error("Failed to auto-save draft:", err);
+    }
+  };
+
+  useEffect(() => {
+    isUnmounted.current = false;
+    return () => {
+      isUnmounted.current = true;
     };
+  }, []);
 
-    fetch("/api/blogs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(blog),
-    }).then(() => {
-      alert(`${status === "published" ? "Published" : "Saved"} successfully!`);
+  useEffect(() => {
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+    typingTimeoutRef.current = setTimeout(() => {
+      saveDraft();
+    }, 5000);
+
+    return () => clearTimeout(typingTimeoutRef.current);
+  }, [title, tags, editorState]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      saveDraft();
+    }, 30000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
+  const publish = async () => {
+    const content = convertToRaw(editorState.getCurrentContent());
+    try {
+      const res = await fetch("/api/blogs/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: blogId,
+          title,
+          content: JSON.stringify(content),
+          tags: parseTags(tags),
+        }),
+      });
+
+      if (!res.ok) throw new Error("Publish failed");
+
       setTitle("");
+      setTags("");
       setEditorState(EditorState.createEmpty());
-    });
+      setBlogId(null);
+
+      setToast("Blog published!");
+      setTimeout(() => setToast(""), 3000);
+    } catch (err) {
+      console.error("Failed to publish blog:", err);
+      setToast("Failed to publish blog");
+      setTimeout(() => setToast(""), 3000);
+    }
   };
 
   return (
-    <div className="p-4">
-      <input
-        className="w-full p-2 border mb-2 text-lg font-semibold"
-        placeholder="Blog Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-      />
-
-      <div className="border min-h-[200px] p-2">
-        <DraftEditor editorState={editorState} onChange={setEditorState} />
-      </div>
-
-      <div className="mt-4 space-x-2">
+    <>
+      <div className="p-4 max-w-2xl mx-auto">
+        <input
+          className="w-full text-2xl font-bold mb-4 border-b"
+          placeholder="Blog title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <input
+          className="w-full text-base mb-4 border p-2 rounded"
+          placeholder="Tags (comma separated)"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+        />
+        <div className="border p-2 mb-4 min-h-[200px] cursor-text">
+          <Editor editorState={editorState} onChange={setEditorState} />
+        </div>
         <button
-          className="bg-green-600 text-white px-4 py-2 rounded"
-          onClick={() => handleSave("published")}
-        >
-          Publish
-        </button>
-        <button
-          className="bg-gray-500 text-white px-4 py-2 rounded"
-          onClick={() => handleSave("draft")}
+          className="mr-2 px-4 py-2 bg-gray-500 text-white rounded"
+          onClick={saveDraft}
         >
           Save Draft
         </button>
+        <button
+          className="px-4 py-2 bg-green-600 text-white rounded"
+          onClick={publish}
+        >
+          Publish
+        </button>
       </div>
-    </div>
+
+      {/* Toast Notification */}
+      {toast && (
+        <div
+          className="fixed bottom-4 right-4 bg-black bg-opacity-80 text-white px-4 py-2 rounded shadow-lg z-50"
+          role="alert"
+          aria-live="assertive"
+        >
+          {toast}
+        </div>
+      )}
+    </>
   );
 }

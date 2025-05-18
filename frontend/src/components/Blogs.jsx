@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Blogs() {
   const [blogs, setBlogs] = useState([]);
@@ -6,29 +7,47 @@ export default function Blogs() {
   useEffect(() => {
     fetch("/api/blogs", {
       method: "GET",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
     })
       .then((res) => res.json())
-      .then((data) => setBlogs(data));
+      .then(setBlogs);
   }, []);
-
-  const published = blogs.filter((b) => b.status === "published");
-  const drafts = blogs.filter((b) => b.status === "draft");
 
   return (
     <div className="p-4">
-      <h2 className="text-lg font-bold mb-2">Published</h2>
-      {published.map((b) => (
-        <div key={b._id} className="border p-2 mb-2">
-          {b.title}
-        </div>
-      ))}
-      <h2 className="text-lg font-bold mt-4 mb-2">Drafts</h2>
-      {drafts.map((b) => (
-        <div key={b._id} className="border p-2 mb-2 text-gray-600">
-          {b.title}
-        </div>
-      ))}
+      <h2 className="text-2xl font-semibold mb-2">Published Blogs</h2>
+      {blogs
+        .filter((b) => b.status === "published")
+        .map((blog) => (
+          <div key={blog._id} className="mb-4">
+            <Link
+              to={`/blog/${blog._id}`}
+              className="text-lg text-blue-600 hover:underline"
+            >
+              {blog.title}
+              {" - " + blog.tags.join(", ")}
+              {blog.content}
+            </Link>
+          </div>
+        ))}
+
+      <h2 className="text-2xl font-semibold mt-6 mb-2">Drafts</h2>
+      {blogs
+        .filter((b) => b.status === "draft")
+        .map((blog) => (
+          <div key={blog._id} className="mb-4">
+            <Link
+              to={`/blog/${blog._id}`}
+              className="text-lg text-gray-600 hover:underline"
+            >
+              {blog.title || "Untitled Draft"}
+              {" - " + blog.tags.join(", ")}
+              {blog.content}
+            </Link>
+          </div>
+        ))}
     </div>
   );
 }
