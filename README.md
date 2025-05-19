@@ -1,4 +1,4 @@
- """# 📝 My Blog Editor
+ # 📝 My Blog Editor
 
 A full-featured blog editor built with the **MERN stack** that supports drafting, auto-saving, tag management, and publishing blogs with a rich text interface powered by **Draft.js**.
 
