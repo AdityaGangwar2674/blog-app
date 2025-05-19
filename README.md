@@ -24,3 +24,48 @@ A full-featured blog editor built with the **MERN stack** that supports drafting
 - **Icons**: Heroicons
 
 ## 📂 Folder Structure
+src/
+├── components/
+│ ├── BlogCard.js
+│ ├── Blogs.js
+│ ├── Editor.js
+│ └── Header.js
+├── pages/
+│ ├── EditorPage.js
+│ └── ViewBlog.js
+├── App.js
+└── index.js
+
+## 📦 API Endpoints
+
+| Method | Endpoint               | Description                  |
+|--------|------------------------|------------------------------|
+| GET    | `/api/blogs`           | Fetch all blogs              |
+| GET    | `/api/blogs/:id`       | Fetch single blog by ID      |
+| POST   | `/api/blogs/save-draft`| Save or update a draft       |
+| POST   | `/api/blogs/publish`   | Publish a blog               |
+
+## 🧪 How It Works
+
+- Drafts are saved with status `"draft"` and can be resumed later.
+- Published blogs have status `"published"` and are locked from further editing.
+- Draft.js content is serialized as JSON and stored in MongoDB.
+- Blogs are previewed as cards with tag chips, truncated content, and status indicators.
+
+## 🔧 Setup & Run
+
+1. **Clone the repo**  
+   ```bash
+   git clone https://github.com/your-username/my-blog-editor.git
+   cd my-blog-editor
+   ```
+2. **Install dependencies**
+   ```bash
+   cd backend
+   npm install
+   cd frontend
+   npm install
+   ```
+3. **Run the app**
+   Backend: npm start
+   Frontend: npm start
