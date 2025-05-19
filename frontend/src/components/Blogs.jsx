@@ -39,7 +39,7 @@ export default function Blogs() {
         .map((blog) => (
           <div key={blog._id} className="mb-4">
             <Link
-              to={`/blog/${blog._id}`}
+              to={`/editor/${blog._id}`}
               className="text-lg text-gray-600 hover:underline"
             >
               {blog.title || "Untitled Draft"}

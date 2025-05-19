@@ -9,8 +9,10 @@ export default function Header() {
         </Link>
       </h1>
       <nav className="space-x-4">
-        <Link to="/">Home</Link>
-        <Link to="/editor">New Post</Link>
+        <Link to="/editor">
+        {/* <PlusIcon className="w-5 h-5 inline-block" /> */}
+          New Post
+        </Link>
       </nav>
     </header>
   );

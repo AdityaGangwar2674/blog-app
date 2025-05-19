@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Editor, EditorState, convertToRaw } from "draft-js";
+import { Editor, EditorState, convertToRaw, convertFromRaw } from "draft-js";
 import "draft-js/dist/Draft.css";
 
-export default function BlogEditor() {
+export default function BlogEditor({ blogid }) {
   const [editorState, setEditorState] = useState(() =>
     EditorState.createEmpty()
   );
@@ -20,7 +20,7 @@ export default function BlogEditor() {
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
 
-  const saveDraft = async () => {
+  const saveDraft = async (isManual = false) => {
     const content = convertToRaw(editorState.getCurrentContent());
     const isContentEmpty =
       editorState.getCurrentContent().getPlainText().trim().length === 0;
@@ -43,7 +43,7 @@ export default function BlogEditor() {
       if (!blogId && data._id) setBlogId(data._id);
 
       if (!isUnmounted.current) {
-        setToast("Draft auto-saved");
+        setToast(isManual ? "Draft saved!" : "Draft auto-saved!");
         setTimeout(() => {
           setToast("");
         }, 3000);
@@ -79,6 +79,26 @@ export default function BlogEditor() {
       clearInterval(intervalId);
     };
   }, []);
+  useEffect(() => {
+    if (!blogid) return;
+
+    const fetchBlog = async () => {
+      try {
+        const res = await fetch(`/api/blogs/${blogid}`);
+        const data = await res.json();
+
+        setTitle(data.title || "");
+        setTags((data.tags || []).join(", "));
+        const contentState = convertFromRaw(JSON.parse(data.content));
+        setEditorState(EditorState.createWithContent(contentState));
+        setBlogId(data._id);
+      } catch (err) {
+        console.error("Failed to fetch blog:", err);
+      }
+    };
+
+    fetchBlog();
+  }, [blogid]);
 
   const publish = async () => {
     const content = convertToRaw(editorState.getCurrentContent());
@@ -130,7 +150,7 @@ export default function BlogEditor() {
         </div>
         <button
           className="mr-2 px-4 py-2 bg-gray-500 text-white rounded"
-          onClick={saveDraft}
+          onClick={() => saveDraft(true)}
         >
           Save Draft
         </button>
