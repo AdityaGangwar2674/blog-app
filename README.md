@@ -10,10 +10,7 @@ A full-featured blog editor built with the **MERN stack** that supports drafting
 - 📂 **Draft vs Published View**:  
   - Drafts open in edit mode  
   - Published blogs are view-only  
-- 🌐 **Routing** using `react-router-dom`  
 - 📄 **Clean Blog Dashboard** to view and manage all blogs  
-- 🔧 **Express.js Backend** with RESTful APIs  
-- 🧠 **MongoDB** for storing blog content, title, tags, and status
 
 ## 🛠️ Tech Stack
 
@@ -23,18 +20,6 @@ A full-featured blog editor built with the **MERN stack** that supports drafting
 - **Routing**: React Router  
 - **Icons**: Heroicons
 
-## 📂 Folder Structure
-src/
-├── components/
-│ ├── BlogCard.js
-│ ├── Blogs.js
-│ ├── Editor.js
-│ └── Header.js
-├── pages/
-│ ├── EditorPage.js
-│ └── ViewBlog.js
-├── App.js
-└── index.js
 
 ## 📦 API Endpoints
 
@@ -67,5 +52,11 @@ src/
    npm install
    ```
 3. **Run the app**
-   Backend: npm start
-   Frontend: npm start
+   *Backend*
+   ```bash
+   npm start
+   ```
+   *Frontend*
+   ```bash
+   npm start
+   ```
