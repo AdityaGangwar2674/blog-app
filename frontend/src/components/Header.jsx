@@ -1,16 +1,20 @@
 import { Link } from "react-router-dom";
+import { PlusCircleIcon } from "@heroicons/react/24/outline";
 
 export default function Header() {
   return (
-    <header className="p-4 bg-blue-600 text-white flex justify-between">
-      <h1 className="text-xl font-bold">
-        <Link to="/" className="text-white">
+    <header className="p-4 bg-gradient-to-r from-blue-700 to-blue-500 text-white flex justify-between items-center shadow-md">
+      <h1 className="text-2xl font-bold">
+        <Link to="/" className="text-white hover:text-gray-200">
           My Blog Editor
         </Link>
       </h1>
-      <nav className="space-x-4">
-        <Link to="/editor">
-        {/* <PlusIcon className="w-5 h-5 inline-block" /> */}
+      <nav>
+        <Link
+          to="/editor"
+          className="inline-flex items-center gap-2 bg-white text-blue-700 font-semibold px-4 py-2 rounded shadow hover:bg-gray-100 transition"
+        >
+          <PlusCircleIcon className="w-5 h-5" />
           New Post
         </Link>
       </nav>
