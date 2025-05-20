@@ -52,7 +52,7 @@ A full-featured blog editor built with the **MERN stack** that supports drafting
    npm install
    ```
 3. **Run the app**
-   *Backend*
+*Backend*
    ```bash
    npm start
    ```
